@@ -124,14 +124,22 @@ def categoryWin():
         name = cname_entry.get().strip()
         keywords = ckeyword_entry.get().strip()
 
+        if not name: 
+            messagebox.showwarning("Warning," "Please enter a category name. ")
+            return
+
         conn = sqlite3.connect('file_organization.db')
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO categories (name, keywords) VALUES (?, ?)', (name, keywords))
-        conn.commit()
-        conn.close()
 
-        c_window.destroy()
-        refreshCategorySection()
+        try:
+            cursor.execute('INSERT INTO categories (name, keywords) VALUES (?, ?)', (name, keywords))
+            conn.commit()
+            c_window.destroy()
+            refreshCategorySection()
+        except sqlite3.IntegrityError:
+            messagebox.showerror("Error", f"A category with this name already exists.")
+        finally:
+            conn.close()
 
     # Create button
     create_button = Button(c_window, text="Create", command=categoryCreation)
